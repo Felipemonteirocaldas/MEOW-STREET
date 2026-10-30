@@ -6,7 +6,7 @@ Serves the game files and builds /worldstate.json from real sources:
 - current NYC weather (Open-Meteo)
 Clients only download one small JSON; no AI or scraping runs on the phone.
 """
-import hashlib, html, http.server, json, os, re, socketserver, threading, time, urllib.request
+import hashlib, html, http.server, ipaddress, json, os, re, socket, socketserver, ssl, threading, time, urllib.error, urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from email.utils import parsedate_to_datetime
@@ -65,6 +65,75 @@ SPONSORED = {
             "advertiser": "NovaCloud", "headline": "NovaCloud launches hosting 40% cheaper for developers",
             "slogan": "Your code in the clouds. Literally.", "reward": {"mult": 2, "dur_min": 10}}],
 }
+
+
+# ---------- /proxy: the in-game Windows 98 browser ----------
+# Fetches a page for the game's Internet Explorer and strips what stops it from loading inside an iframe (X-Frame-Options, CSP).
+# Safety: loopback clients only (the server binds to every interface), http/https only, and never to private/loopback addresses (SSRF).
+MAX_PROXY_BYTES = 12 * 1024 * 1024
+
+
+def public_url(url):
+    u = urlparse(url)
+    if u.scheme not in ("http", "https") or not u.hostname:
+        return False
+    try:
+        infos = socket.getaddrinfo(u.hostname, u.port or (443 if u.scheme == "https" else 80), proto=socket.IPPROTO_TCP)
+    except socket.gaierror:
+        return False
+    return all(ipaddress.ip_address(i[4][0]).is_global for i in infos)
+
+
+class SafeRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if not public_url(newurl):
+            raise urllib.error.URLError("redirect to a non-public address")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+try:  # python.org builds on Windows often lack the system CA roots; certifi (pip install certifi) fixes HTTPS
+    import certifi
+    _ctx = ssl.create_default_context(cafile=certifi.where())
+except ImportError:
+    _ctx = ssl.create_default_context()
+PROXY_OPENER = urllib.request.build_opener(SafeRedirect, urllib.request.HTTPSHandler(context=_ctx))
+INJECT = """<base href="%(base)s"><script>(function(){var P=%(proxy)s,U=%(url)s;
+function go(u){location.href=P+encodeURIComponent(u)}
+function abs(h){try{return new URL(h,document.baseURI).href}catch(e){return null}}
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a||e.defaultPrevented)return;var h=a.getAttribute('href');
+if(!h||/^(javascript|mailto|tel|data):/i.test(h))return;if(h.charAt(0)==='#'){e.preventDefault();var t=document.getElementById(h.slice(1));t&&t.scrollIntoView();return}
+var u=abs(h);if(u){e.preventDefault();go(u)}},true);
+document.addEventListener('submit',function(e){var f=e.target;if((f.method||'get').toLowerCase()!=='get')return;e.preventDefault();
+var u=new URL(f.getAttribute('action')||U,document.baseURI);new FormData(f).forEach(function(v,k){if(typeof v==='string')u.searchParams.set(k,v)});go(u.href)},true);
+function tell(){parent.postMessage({win98:1,url:U,title:document.title},'*')}tell();addEventListener('load',tell);
+})();</script>"""
+
+
+def proxy_page(handler, target):
+    client = handler.client_address[0]  # the game talks to this port directly (not through Vite), so the address can't be spoofed with a header
+    if client not in ("127.0.0.1", "::1", "::ffff:127.0.0.1"):
+        return handler.reply(b"proxy is local only", "text/plain", 403)
+    if not public_url(target):
+        return handler.reply(b"blocked address", "text/plain", 403)
+    try:
+        req = urllib.request.Request(target, headers={"User-Agent": "Mozilla/5.0 (Windows 98; Win98) Gecko/20010101", "Accept-Encoding": "identity",
+                                                      "Accept": "text/html,*/*;q=0.8", "Accept-Language": handler.headers.get("Accept-Language", "en")})
+        with PROXY_OPENER.open(req, timeout=15) as r:
+            body, ctype, final = r.read(MAX_PROXY_BYTES + 1), r.headers.get("Content-Type", "application/octet-stream"), r.geturl()
+    except Exception as e:
+        msg = "<body style='font:12px Tahoma,sans-serif'><h3>The page cannot be displayed</h3><p>%s</p></body>" % html.escape(str(e))
+        return handler.reply(msg.encode(), "text/html; charset=utf-8", 502)
+    if len(body) > MAX_PROXY_BYTES:
+        return handler.reply(b"too large", "text/plain", 413)
+    if "html" in ctype.lower():
+        body = re.sub(rb"<meta[^>]+http-equiv=[\"']?content-security-policy[^>]*>", b"", body, flags=re.I)
+        host = handler.headers.get("Host", "localhost:8090")
+        inj = (INJECT % {"base": html.escape(final, quote=True), "proxy": json.dumps("http://%s/proxy?url=" % host), "url": json.dumps(final)}).encode()
+        m = re.search(rb"<head[^>]*>", body, re.I)
+        body = body[:m.end()] + inj + body[m.end():] if m else inj + body
+    handler.reply(body, ctype)
+
+
 STATE = {"mods": {"en": [], "pt": []}, "market": None, "weather": None, "updated": 0}
 
 
@@ -174,13 +243,15 @@ def refresher():
 
 
 def newest():
-    return max(os.path.getmtime(f) for f in os.listdir(".") if f.endswith((".html", ".js", ".css")))
+    return max(os.path.getmtime(os.path.join(r, f)) for r, _, fs in os.walk(".") for f in fs if f.endswith((".html", ".js", ".css")))
 
 
 class H(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith("/__v"):  # dev-only: client reloads when files change
             return self.reply(str(newest()).encode(), "text/plain")
+        if self.path.startswith("/proxy"):
+            return proxy_page(self, parse_qs(urlparse(self.path).query).get("url", [""])[0])
         if self.path.startswith("/worldstate.json"):
             lang = parse_qs(urlparse(self.path).query).get("lang", ["pt"])[0]
             lang = lang if lang in FEEDS else "en"
@@ -189,8 +260,8 @@ class H(http.server.SimpleHTTPRequestHandler):
             return self.reply(json.dumps(body).encode(), "application/json")
         super().do_GET()
 
-    def reply(self, data, ctype):
-        self.send_response(200)
+    def reply(self, data, ctype, status=200):
+        self.send_response(status)
         self.send_header("Content-Type", ctype)
         self.end_headers()
         self.wfile.write(data)
@@ -206,5 +277,5 @@ class H(http.server.SimpleHTTPRequestHandler):
 if __name__ == "__main__":
     threading.Thread(target=refresher, daemon=True).start()
     socketserver.ThreadingTCPServer.allow_reuse_address = True
-    with socketserver.ThreadingTCPServer(("0.0.0.0", 8090), H) as s:
+    with socketserver.ThreadingTCPServer(("0.0.0.0", int(os.environ.get("PORT", 8090))), H) as s:
         s.serve_forever()

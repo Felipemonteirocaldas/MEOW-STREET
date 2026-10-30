@@ -1,0 +1,14 @@
+{
+  "name": "meow-street",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "eslint-scope": "^9.1.2",
+    "espree": "^11.2.0",
+    "vite": "^8.3.5"
+  }
+}

@@ -1,3 +1,12 @@
+import { dayPhase } from "./game/clock.js";
+import { OPTS } from "./menu.js";
+import { activeMods } from "./game/production.js";
+import { tr } from "./lang.js";
+import { dogVisible } from "./world/dog.js";
+import { S } from "./game/state.js";
+import { pick } from "./engine/draw.js";
+import { dex } from "./characters/dex.js";
+
 // Front view of NYC from Dex's window, film-noir style: grey city, rain, fog, wet street, one red neon. Light follows the real clock.
 const viewEl = document.getElementById("view"), cc = document.getElementById("city"), c2 = cc.getContext("2d");
 const VW = 400, VH = 500;
@@ -143,7 +152,7 @@ function cityFrame(ts) {
   drawCity(t, dt);
   requestAnimationFrame(cityFrame);
 }
-function openCity() {
+export function openCity() {
   const dpr = window.devicePixelRatio || 1, w = Math.min(innerWidth * 0.92, 440, innerHeight * 0.78 * VW / VH);
   cc.style.width = w + "px"; cc.style.height = w * VH / VW + "px";
   cc.width = w * dpr; cc.height = w * VH / VW * dpr;
@@ -151,4 +160,5 @@ function openCity() {
   viewEl.hidden = false; cityOn = true; cityLast = performance.now() / 1000;
   requestAnimationFrame(cityFrame);
 }
+viewEl.addEventListener("ovclose", () => { cityOn = false; dex.idle = 6; });
 viewEl.addEventListener("click", e => { if (e.target === cc) return; viewEl.hidden = true; cityOn = false; dex.idle = 6; });

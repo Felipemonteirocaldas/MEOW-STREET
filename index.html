@@ -4,39 +4,60 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MEOW-STREET</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=UnifrakturMaguntia&family=Special+Elite&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=UnifrakturMaguntia&family=Special+Elite&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <!-- elements marked data-t are translated by lang.js (Portuguese is the source text) -->
 <header>
-  <div>
-    <h1>MEOW-STREET · APT 4B · NY</h1>
+  <div class="brand">
+    <h1>MEOW-STREET<span class="h-more"> · APT 4B · NY</span></h1>
     <div class="wallet"><span id="usd">$0</span><span id="cycles">0</span></div>
   </div>
-  <div class="hright"><div id="rate"></div><button id="pausebtn" title="Menu">☰</button></div>
+  <div class="hright"><div id="rate"></div>
+    <button id="focusbtn" class="hbtn d-only" title="Modo painel" aria-label="Modo painel"></button>
+    <button id="fsbtn" class="hbtn d-only" title="Tela cheia" aria-label="Tela cheia"></button>
+    <button id="pausebtn" class="hbtn" title="Menu" aria-label="Menu"></button></div>
 </header>
 
-<div class="stage">
-  <canvas id="scene"></canvas>
-  <div class="stage-btns">
-    <button id="recenter" title="Dex">◎</button>
+<main class="app">
+  <div class="stage">
+    <canvas id="scene"></canvas>
+    <div class="stage-btns">
+      <button id="recenter" title="Dex">◎</button>
+    </div>
+  </div>
+  <div class="side">
+    <section id="dash" class="dash" aria-label="Painel"></section>
+    <div id="needs" class="needs"></div>
+    <nav class="tabs">
+      <button id="dexbtn" data-t>Dex</button>
+      <button id="prodbtn" data-t>Produção</button>
+      <button id="newsbtn" data-t>Notícias</button>
+      <button id="exchbtn" data-t>Corretora</button>
+      <button id="shopbtn" class="primary" data-t>Catálogo</button>
+    </nav>
+  </div>
+</main>
+
+<div id="dexov" class="overlay" hidden>
+  <div class="shop">
+    <div class="row"><h2 data-t>Dex</h2><button class="close" data-t>Fechar</button></div>
+    <div id="dexc"></div>
   </div>
 </div>
 
-<div id="needs" class="needs"></div>
-
-<nav class="tabs">
-  <button id="prodbtn" data-t>Produção</button>
-  <button id="newsbtn" data-t>Notícias</button>
-  <button id="exchbtn" data-t>Corretora</button>
-  <button id="shopbtn" class="primary" data-t>Catálogo</button>
-</nav>
+<div id="pokerov" class="overlay" hidden>
+  <div class="shop">
+    <div class="row"><h2 data-t>Mão do Dex</h2><button class="close" data-t>Fechar</button></div>
+    <div id="pokerc"></div>
+  </div>
+</div>
 
 <div id="prod" class="overlay" hidden>
   <div class="shop">
-    <div class="row"><h2 data-t>Produção do BD-1</h2><button class="close" data-t>Fechar</button></div>
-    <p class="sub" data-t>O BD-1 minera BDC. Melhorias são pagas em BDC.</p>
+    <div class="row"><h2 data-t>Produção do R2-DEBT</h2><button class="close" data-t>Fechar</button></div>
     <div id="lines"></div>
   </div>
 </div>
@@ -57,6 +78,13 @@
   <div class="sub" style="margin-top:14px" data-t>toque fora da TV para desligar</div>
 </div>
 
+<div id="pc" class="overlay" hidden>
+  <div class="pc-fit"><div class="pc-monitor">
+    <div class="pc-bezel"><div class="pc-tube"><div id="pcs"></div><div class="pc-glass"></div></div></div>
+    <div class="pc-chin"><span class="pc-brand">R2-DEBT</span><i class="pc-led"></i><button id="pcoff" title="Power"></button></div>
+  </div></div>
+</div>
+
 <div id="view" class="overlay" hidden>
   <canvas id="city" class="cityframe"></canvas>
   <div class="sub" style="margin-top:12px" data-t>toque fora da janela para voltar</div>
@@ -75,7 +103,6 @@
 <div id="shop" class="overlay" hidden>
   <div class="shop">
     <div class="row"><h2 data-t>Catálogo</h2><button class="close" data-t>Fechar</button></div>
-    <p class="sub" data-t>Móveis são pagos em dólar. Venda BDC na corretora.</p>
     <div id="shopc"></div>
   </div>
 </div>
@@ -92,10 +119,6 @@
 
 <div id="menu" class="overlay menu-screen" hidden><div id="menuc"></div></div>
 
-<script src="lang.js"></script>
-<script src="game.js"></script>
-<script src="city.js"></script>
-<script src="scene.js"></script>
-<script src="menu.js"></script>
+<script type="module" src="/src/main.js"></script>
 </body>
 </html>
