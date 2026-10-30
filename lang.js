@@ -192,7 +192,7 @@ const EN = {
   "<p>O BD-1 lê o mundo antes de todo mundo. Lena, a única que sabia de onde ele veio, sumiu em 1984. Um cachorro preto às vezes aparece na escada de incêndio.</p>":
     "<p>BD-1 reads the world before everyone else. Lena, the only one who knew where it came from, vanished in 1984. A black dog sometimes appears on the fire escape.</p>",
   "<p><i>Pague as contas. Siga as pistas. Não confie em ninguém. Nem na máquina.</i></p>": "<p><i>Pay the bills. Follow the clues. Trust no one. Not even the machine.</i></p>",
-  "<p><b>MEOW STREET</b> · protótipo 0.1</p>": "<p><b>MEOW STREET</b> · prototype 0.1</p>",
+  "<p><b>MEOW-STREET</b> · protótipo 0.1</p>": "<p><b>MEOW-STREET</b> · prototype 0.1</p>",
   "<p>Dados reais: cotação BTC (Binance, CoinGecko), clima de Nova York (Open-Meteo), manchetes (Tecnoblog, Olhar Digital, Canaltech, TecMundo, Hacker News, The Verge, Ars Technica, TechCrunch), rádios (Radio Browser).</p>":
     "<p>Real data: BTC quote (Binance, CoinGecko), New York weather (Open-Meteo), headlines (Hacker News, The Verge, Ars Technica, TechCrunch, Tecnoblog, Olhar Digital, Canaltech, TecMundo), radio stations (Radio Browser).</p>",
   "<p>Fontes: Special Elite, UnifrakturMaguntia, VT323 (Google Fonts).</p>": "<p>Fonts: Special Elite, UnifrakturMaguntia, VT323 (Google Fonts).</p>",

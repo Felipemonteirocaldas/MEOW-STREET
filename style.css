@@ -18,7 +18,7 @@ header #rate { text-align:right; font-size:12px; }
   background:repeating-linear-gradient(100deg, transparent 0 22px, rgba(200,205,215,.18) 22px 23px); background-size:200px 200px; animation:rain .5s linear infinite; }
 @keyframes rain { to { background-position:-40px 200px; } }
 #menuc { position:relative; width:min(92vw,420px); display:flex; flex-direction:column; align-items:center; gap:14px; }
-.op-title { font:400 clamp(44px,15vw,72px)/1 "Special Elite",monospace; letter-spacing:.08em; color:var(--txt); margin:0; text-shadow:0 0 18px rgba(224,38,46,.35); }
+.op-title { font:400 clamp(34px,11vw,54px)/1 "Special Elite",monospace; letter-spacing:.08em; color:var(--txt); margin:0; text-shadow:0 0 18px rgba(224,38,46,.35); }
 .op-title.small { font-size:clamp(30px,9.5vw,46px); }
 .op-sub { font:13px "Special Elite",monospace; letter-spacing:.25em; color:var(--acc); }
 .op-meta { font:12px/1.6 "Special Elite",monospace; letter-spacing:.12em; color:var(--mut); }
