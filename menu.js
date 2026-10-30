@@ -16,11 +16,11 @@ const INTRO = [
 const btns = list => `<div class="menu-btns">${list.map(([go, label]) => `<button data-go="${go}">${tr(label)}</button>`).join("")}</div>`;
 const panel = (title, paras) => `<h2 class="menu-h">${tr(title)}</h2><div class="menu-text">${paras.map(p => tr(p)).join("")}</div>${btns([["back", "Voltar"]])}`;
 const SCREENS = {
-  opening: () => `<div class="op-meta">${tr("CASO Nº 4B · NOVA YORK, 1986")}</div><h1 class="op-title">BLACK DOG</h1>
+  opening: () => `<div class="op-meta">${tr("CASO Nº 4B · NOVA YORK, 1986")}</div><h1 class="op-title">MEOW<br>STREET</h1>
     <div class="op-sub">${tr("UM IDLE NOIR MOVIDO PELO MUNDO REAL")}</div>
     <div class="op-meta">${tr("O COMPUTADOR SABE O QUE ESTÁ ACONTECENDO LÁ FORA.<br>VOCÊ SÓ PRECISA SOBREVIVER AQUI DENTRO.")}</div>
     <div class="op-go">${tr("— toque para continuar —")}</div>`,
-  main: () => `<h1 class="op-title small">BLACK DOG</h1><div class="op-sub">${tr("APT 4B · NOVA YORK")}</div>`
+  main: () => `<h1 class="op-title small">MEOW STREET</h1><div class="op-sub">${tr("APT 4B · NOVA YORK")}</div>`
     + btns([...(saved() && !gameOver ? [["resume", "Continuar"]] : []), ["new", "Novo caso"], ["how", "Como jogar"], ["opts", "Opções"], ["credits", "Créditos"]]),
   pause: () => `<h2 class="menu-h">${tr("PAUSADO")}</h2><div class="op-sub">${tr("A CIDADE NÃO PARA. NEM O BD-1.")}</div>`
     + btns([["resume", "Retomar"], ["how", "Como jogar"], ["lore", "A história"], ["opts", "Opções"], ["new", "Novo caso"], ["main", "Menu principal"]]),
@@ -39,7 +39,7 @@ const SCREENS = {
     "<p>O BD-1 lê o mundo antes de todo mundo. Lena, a única que sabia de onde ele veio, sumiu em 1984. Um cachorro preto às vezes aparece na escada de incêndio.</p>",
     "<p><i>Pague as contas. Siga as pistas. Não confie em ninguém. Nem na máquina.</i></p>"]),
   credits: () => panel("Créditos", [
-    "<p><b>BLACK DOG</b> · protótipo 0.1</p>",
+    "<p><b>MEOW STREET</b> · protótipo 0.1</p>",
     "<p>Dados reais: cotação BTC (Binance, CoinGecko), clima de Nova York (Open-Meteo), manchetes (Tecnoblog, Olhar Digital, Canaltech, TecMundo, Hacker News, The Verge, Ars Technica, TechCrunch), rádios (Radio Browser).</p>",
     "<p>Fontes: Special Elite, UnifrakturMaguntia, VT323 (Google Fonts).</p>"]),
   opts: () => `<h2 class="menu-h">${tr("Opções")}</h2><div class="menu-text">

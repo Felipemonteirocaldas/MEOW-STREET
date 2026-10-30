@@ -19,7 +19,7 @@ header #rate { text-align:right; font-size:12px; }
 @keyframes rain { to { background-position:-40px 200px; } }
 #menuc { position:relative; width:min(92vw,420px); display:flex; flex-direction:column; align-items:center; gap:14px; }
 .op-title { font:400 clamp(44px,15vw,72px)/1 "Special Elite",monospace; letter-spacing:.08em; color:var(--txt); margin:0; text-shadow:0 0 18px rgba(224,38,46,.35); }
-.op-title.small { font-size:clamp(36px,11vw,52px); }
+.op-title.small { font-size:clamp(30px,9.5vw,46px); }
 .op-sub { font:13px "Special Elite",monospace; letter-spacing:.25em; color:var(--acc); }
 .op-meta { font:12px/1.6 "Special Elite",monospace; letter-spacing:.12em; color:var(--mut); }
 .op-go { font:13px "Special Elite",monospace; color:var(--txt); animation:blink 1.4s steps(2) infinite; margin-top:18px; }
