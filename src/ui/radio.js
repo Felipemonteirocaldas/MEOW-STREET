@@ -6,29 +6,93 @@ import { activeMods, claimAd } from "../game/production.js";
 import { OPTS, saveOpts } from "../menu.js";
 import { say } from "../characters/dex.js";
 
-// radio: real internet stations (Radio Browser, free, no key), keeps playing while the game is open
+// radio: real internet stations (curated 24/7 HTTPS presets + Radio Browser when available), keeps playing while the game is open
 export const radioEl = document.getElementById("radio"), radioc = document.getElementById("radioc"), audio = new Audio();
 const GENRES = { jazz: "Jazz", blues: "Blues", noir: "Noir", lounge: "Lounge", classical: "Clássica", news: "Notícias" };
 for (const k in GENRES) GENRES[k] = tr(GENRES[k]);
+const PRESETS = {
+  jazz: [
+    ["KCSM Jazz 91.1", "US · 128 kbps", "https://ice7.securenetsystems.net/KCSM2"],
+    ["TSF Jazz Paris", "FR · 128 kbps", "https://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3"],
+    ["Radio Swiss Jazz", "CH · 128 kbps", "https://stream.srg-ssr.ch/m/rsj/mp3_128"],
+    ["SomaFM Sonic Universe", "US · 128 kbps", "https://ice5.somafm.com/sonicuniverse-128-mp3"],
+    ["181.FM Bebop Jazz", "US · 128 kbps", "https://listen.181fm.com/181-bebop_128k.mp3"],
+    ["181.FM SmoothAC Jazz", "US · 128 kbps", "https://listen.181fm.com/181-smoothac_128k.mp3"],
+  ],
+  blues: [
+    ["181.FM True Blues", "US · 128 kbps", "https://listen.181fm.com/181-blues_128k.mp3"],
+    ["GotRadio Bit O Blues", "US · 128 kbps", "https://pureplay.cdnstream1.com/6022_128.mp3"],
+    ["Blues Radio UK", "GB · 128 kbps", "https://i4.streams.ovh/sc/bluesrad/stream"],
+    ["SomaFM Boot Liquor", "US · 128 kbps", "https://ice5.somafm.com/bootliquor-128-mp3"],
+    ["181.FM Soul & Blues", "US · 128 kbps", "https://listen.181fm.com/181-soul_128k.mp3"],
+    ["Radio Paradise Rock/Blues", "US · 128 kbps", "https://stream.radioparadise.com/rock-128"],
+  ],
+  noir: [
+    ["SomaFM Secret Agent", "US · 128 kbps", "https://ice5.somafm.com/secretagent-128-mp3"],
+    ["SomaFM Illinois Street Lounge", "US · 128 kbps", "https://ice5.somafm.com/illstreet-128-mp3"],
+    ["SomaFM Dark Zone", "US · 128 kbps", "https://ice5.somafm.com/darkzone-128-mp3"],
+    ["SomaFM Drone Zone", "US · 128 kbps", "https://ice5.somafm.com/dronezone-128-mp3"],
+    ["Nightride FM", "US · 128 kbps", "https://stream.nightride.fm/nightride.mp3"],
+    ["Chillsynth FM", "US · 128 kbps", "https://stream.nightride.fm/chillsynth.mp3"],
+  ],
+  lounge: [
+    ["SomaFM Groove Salad", "US · 128 kbps", "https://ice5.somafm.com/groovesalad-128-mp3"],
+    ["SomaFM Lush", "US · 128 kbps", "https://ice5.somafm.com/lush-128-mp3"],
+    ["SomaFM Beat Blender", "US · 128 kbps", "https://ice5.somafm.com/beatblender-128-mp3"],
+    ["SomaFM Bossa Beyond", "US · 128 kbps", "https://ice5.somafm.com/bossa-128-mp3"],
+    ["181.FM Chilled Out", "US · 128 kbps", "https://listen.181fm.com/181-chilled_128k.mp3"],
+    ["Radio Paradise Mellow Mix", "US · 128 kbps", "https://stream.radioparadise.com/mellow-128"],
+  ],
+  classical: [
+    ["WQXR 105.9 NY Classical", "US · 128 kbps", "https://stream.wqxr.org/wqxr-web"],
+    ["Radio Swiss Classic", "CH · 128 kbps", "https://stream.srg-ssr.ch/m/rsc_de/mp3_128"],
+    ["Venice Classic Radio", "IT · 128 kbps", "https://uk2.streamingpulse.com/ssl/vcr1"],
+    ["181.FM Classical Music", "US · 128 kbps", "https://listen.181fm.com/181-classical_128k.mp3"],
+    ["KUSC Classical California", "US · 128 kbps", "https://playerservices.streamtheworld.com/api/livestream-redirect/KUSCMP128.mp3"],
+    ["WQXR Operavore NY", "US · 128 kbps", "https://stream.wqxr.org/q2-web"],
+  ],
+  news: [
+    ["WNYC 93.9 FM New York", "US · 128 kbps", "https://fm939.wnyc.org/wnycfm-web"],
+    ["NPR Live Program Stream", "US · 128 kbps", "https://npr-ice.streamguys1.com/live.mp3"],
+    ["BBC World Service", "GB · 96 kbps", "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service"],
+    ["WBEZ 91.5 Chicago", "US · 128 kbps", "https://stream.wbez.org/wbez128.mp3"],
+    ["KQED Public Radio", "US · 128 kbps", "https://streams.kqed.org/kqedradio"],
+    ["WBUR 90.9 FM Boston", "US · 48 kbps", "https://fm909.wbur.org/wbur"],
+  ],
+};
+const RB_HOSTS = ["https://all.api.radio-browser.info", "https://de1.api.radio-browser.info", "https://de2.api.radio-browser.info"];
 let station = null, curTag = "jazz"; // station: { url, name, meta }
 audio.onplay = audio.onpause = () => { S.radio = station && !audio.paused ? station.name : null; renderNow(); };
 export const radioNow = () => ({ name: station ? station.name : "", playing: !!station && !audio.paused });
 export function toggleRadio() { if (!station) return false; audio.paused ? audio.play().catch(() => toast("Estação fora do ar")) : audio.pause(); return true; }
 audio.onerror = () => { if (station) toast("Estação fora do ar"); };
+function renderList(box, items) {
+  box.innerHTML = items.map(([name, meta, url]) => `<div class="station ${station && station.url === url ? "on" : ""}" data-url="${esc(url)}" data-name="${esc(name)}" data-meta="${esc(meta)}">
+    <span class="st-name">${esc(name)}</span><span class="st-meta">${esc(meta)}</span></div>`).join("") || `<p class="sub">${tr("Nada nessa frequência.")}</p>`;
+  renderNow();
+}
+async function fetchRadioBrowser(tag) {
+  for (const host of RB_HOSTS) {
+    try {
+      const ac = new AbortController(), t = setTimeout(() => ac.abort(), 3000);
+      const r = await fetch(`${host}/json/stations/search?tag=${tag}&limit=25&hidebroken=true&order=clickcount&reverse=true`, { signal: ac.signal });
+      clearTimeout(t);
+      if (!r.ok) continue;
+      const list = (await r.json()).filter(s => s.url_resolved && (location.protocol === "http:" || s.url_resolved.startsWith("https")));
+      if (list.length) return list.map(s => [s.name.trim(), [s.countrycode, s.bitrate ? s.bitrate + " kbps" : ""].filter(Boolean).join(" · "), s.url_resolved]);
+    } catch (e) {}
+  }
+  return [];
+}
 async function loadStations(tag) {
   curTag = tag;
   radioc.querySelectorAll("[data-tag]").forEach(b => b.classList.toggle("on", b.dataset.tag === tag));
-  const box = radioc.querySelector(".stations"); box.innerHTML = `<p class="sub">${tr("Sintonizando...")}</p>`;
-  try {
-    const r = await fetch(`https://de1.api.radio-browser.info/json/stations/search?tag=${tag}&limit=30&hidebroken=true&order=clickcount&reverse=true`);
-    const list = (await r.json()).filter(s => s.url_resolved && (location.protocol === "http:" || s.url_resolved.startsWith("https")));
-    box.innerHTML = list.map(s => {
-      const meta = [s.countrycode, s.bitrate ? s.bitrate + " kbps" : ""].filter(Boolean).join(" · ");
-      return `<div class="station ${station && station.url === s.url_resolved ? "on" : ""}" data-url="${esc(s.url_resolved)}" data-name="${esc(s.name.trim())}" data-meta="${esc(meta)}">
-        <span class="st-name">${esc(s.name.trim())}</span><span class="st-meta">${esc(meta)}</span></div>`;
-    }).join("") || `<p class="sub">${tr("Nada nessa frequência.")}</p>`;
-    renderNow();
-  } catch (e) { box.innerHTML = `<p class="sub">${tr("Sem sinal. Verifique a conexão.")}</p>`; }
+  const box = radioc.querySelector(".stations"), base = PRESETS[tag] || [];
+  renderList(box, base);
+  const extra = await fetchRadioBrowser(tag);
+  if (curTag !== tag || !extra.length) return;
+  const seen = new Set(base.map(s => s[2]));
+  renderList(box, [...base, ...extra.filter(s => !seen.has(s[2]))]);
 }
 function renderNow() {
   const el = radioc.querySelector(".np"); if (!el) return;
@@ -85,4 +149,3 @@ radioEl.addEventListener("click", e => {
   if (st) { station = { url: st.dataset.url, name: st.dataset.name, meta: st.dataset.meta }; audio.src = station.url; audio.play().catch(() => toast("Estação fora do ar")); renderNow(); }
 });
 S.radio = null; // audio can't autoplay after a reload
-
