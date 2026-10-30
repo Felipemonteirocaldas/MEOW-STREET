@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Black Dog</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=UnifrakturMaguntia&family=Special+Elite&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- elements marked data-t are translated by lang.js (Portuguese is the source text) -->
+<header>
+  <div>
+    <h1>BLACK DOG · APT 4B · NY</h1>
+    <div class="wallet"><span id="usd">$0</span><span id="cycles">0</span></div>
+  </div>
+  <div class="hright"><div id="rate"></div><button id="pausebtn" title="Menu">☰</button></div>
+</header>
+
+<div class="stage">
+  <canvas id="scene"></canvas>
+  <div class="stage-btns">
+    <button id="recenter" title="Dex">◎</button>
+  </div>
+</div>
+
+<div id="needs" class="needs"></div>
+
+<nav class="tabs">
+  <button id="prodbtn" data-t>Produção</button>
+  <button id="newsbtn" data-t>Notícias</button>
+  <button id="exchbtn" data-t>Corretora</button>
+  <button id="shopbtn" class="primary" data-t>Catálogo</button>
+</nav>
+
+<div id="prod" class="overlay" hidden>
+  <div class="shop">
+    <div class="row"><h2 data-t>Produção do BD-1</h2><button class="close" data-t>Fechar</button></div>
+    <p class="sub" data-t>O BD-1 minera BDC. Melhorias são pagas em BDC.</p>
+    <div id="lines"></div>
+  </div>
+</div>
+
+<div id="newsov" class="overlay" hidden>
+  <div class="shop">
+    <div class="row"><h2 data-t>Sinais do mundo</h2><button class="close" data-t>Fechar</button></div>
+    <p class="sub" data-t>Manchetes reais de agora e o efeito de cada uma na produção.</p>
+    <div id="news"></div>
+  </div>
+</div>
+
+<div id="tv" class="overlay" hidden>
+  <div class="crt">
+    <div class="screen" id="tvs"><div id="tvc"></div></div>
+    <div class="knobs"><i></i><i></i><span>SONICA</span></div>
+  </div>
+  <div class="sub" style="margin-top:14px" data-t>toque fora da TV para desligar</div>
+</div>
+
+<div id="view" class="overlay" hidden>
+  <canvas id="city" class="cityframe"></canvas>
+  <div class="sub" style="margin-top:12px" data-t>toque fora da janela para voltar</div>
+</div>
+
+<div id="paper" class="overlay" hidden>
+  <div class="news-paper" id="paperc"></div>
+  <div class="sub" style="margin-top:12px" data-t>toque fora do jornal para fechar</div>
+</div>
+
+<div id="bills" class="overlay" hidden><div class="news-paper" id="billsc"></div></div>
+<div id="exch" class="overlay" hidden><div class="news-paper" id="exchc"></div></div>
+<div id="call" class="overlay" hidden><div class="news-paper" id="callc"></div></div>
+<div id="radio" class="overlay" hidden><div class="radio-cab" id="radioc"></div><div class="sub" style="margin-top:10px" data-t>toque fora do rádio para fechar · a música continua tocando</div></div>
+
+<div id="shop" class="overlay" hidden>
+  <div class="shop">
+    <div class="row"><h2 data-t>Catálogo</h2><button class="close" data-t>Fechar</button></div>
+    <p class="sub" data-t>Móveis são pagos em dólar. Venda BDC na corretora.</p>
+    <div id="shopc"></div>
+  </div>
+</div>
+
+<div id="gameover" class="overlay" hidden>
+  <div class="news-paper">
+    <div class="mast">The New York Signal</div>
+    <div class="dateline" data-t>Edição extra</div>
+    <h3 class="lead" data-t>Morador do 4B é encontrado sem vida após <span id="goDays"></span> dias sozinho</h3>
+    <p data-t>Vizinhos dizem que ninguém o visitava havia dias. O computador do apartamento continuava ligado, imprimindo manchetes que ainda não tinham acontecido. Um cachorro preto uivou a noite toda na escada de incêndio.</p>
+    <button id="newcase" data-t>Abrir novo caso</button>
+  </div>
+</div>
+
+<div id="menu" class="overlay menu-screen" hidden><div id="menuc"></div></div>
+
+<script src="lang.js"></script>
+<script src="game.js"></script>
+<script src="city.js"></script>
+<script src="scene.js"></script>
+<script src="menu.js"></script>
+</body>
+</html>

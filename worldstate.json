@@ -1,0 +1,16 @@
+{
+  "epoch": "mock-001",
+  "mods": [
+    { "id": "h1", "line": "hardware", "mult": 1.25, "dur_min": 360, "faction": "aurora",
+      "headline": "Vidrion anuncia novo chip de IA e o mercado de silício esquenta" },
+    { "id": "h2", "line": "dados", "mult": 0.8, "dur_min": 240, "faction": "sentinelas",
+      "headline": "Vazamento massivo atinge nuvem da Cumulus Corp" },
+    { "id": "h3", "line": "software", "mult": 1.2, "dur_min": 300, "faction": "rede-livre",
+      "headline": "Projeto open source LinuxForge lança versão 10 e dispara adoção" },
+    { "id": "s1", "line": "software", "mult": 1.3, "dur_min": 180, "faction": "patrocinado",
+      "sponsored": true, "advertiser": "NovaCloud",
+      "headline": "NovaCloud lança hospedagem 40% mais barata para devs",
+      "slogan": "Seu código nas nuvens. Literalmente.",
+      "reward": { "mult": 2, "dur_min": 10 } }
+  ]
+}
